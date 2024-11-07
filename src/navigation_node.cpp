@@ -81,5 +81,69 @@ int main(int argc, char **argv)
     ROS_INFO("等待 move_base 服务器启动");
     ac.waitForServer();
 
-        return 0;
+    while (ros::ok())
+    {
+        ros::spinOnce();
+        // 从终端读取导航目标点的位置(x、y坐标)
+        double x, y, w;
+
+        // map3
+        if (full_result == "A")
+        {
+            x = 3.04;
+            y = 9.75;
+            w = 87.71;
+        }
+        else if (full_result == "B")
+        {
+            x = 4.67;
+            y = 8.73;
+            w = 88.94;
+        }
+        else if (full_result == "C")
+        {
+            x = 5.52;
+            y = 9.75;
+            w = 87.71;
+        }
+
+        else
+            continue;
+        // 创建一个PoseStamped消息，用于发送导航目标点信息
+        geometry_msgs::PoseStamped goal_msg;
+
+        // 设置导航目标点的header信息
+        goal_msg.header.seq = 0;
+        goal_msg.header.stamp = ros::Time::now();
+        goal_msg.header.frame_id = "map";
+
+        // 设置导航目标点的位置信息
+        goal_msg.pose.position.x = x;
+        goal_msg.pose.position.y = y;
+        goal_msg.pose.position.z = 0.0;
+
+        // 设置导航目标点的朝向信息
+        goal_msg.pose.orientation.x = 0;
+        goal_msg.pose.orientation.y = 0;
+        goal_msg.pose.orientation.z = 0;
+        goal_msg.pose.orientation.w = 1;
+
+        // 发布导航目标点消息
+        ROS_INFO("发布导航目标点消息");
+        pub.publish(goal_msg);
+
+        // 创建一个导航目标点消息
+        move_base_msgs::MoveBaseGoal goal;
+
+        // 设置导航目标点的位置信息
+        goal.target_pose = goal_msg;
+
+        // 发送导航目标点消息
+        ROS_INFO("发送导航目标点消息");
+        ac.sendGoal(goal);
+
+        // 等待导航完成
+        ac.waitForResult();
+    }
+    return 0;
 }
