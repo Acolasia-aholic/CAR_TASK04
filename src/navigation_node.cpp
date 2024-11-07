@@ -74,6 +74,12 @@ int main(int argc, char **argv)
     // 创建一个图像订阅者，订阅相机图像话题
     ros::Subscriber sub = nh1.subscribe("/camera/color/image_raw", 1, imageCallback);
 
-    
-    return 0;
+    // 创建一个导航行为客户端
+    MoveBaseClient ac("move_base", true);
+
+    // 等待move_base服务器启动
+    ROS_INFO("等待 move_base 服务器启动");
+    ac.waitForServer();
+
+        return 0;
 }
